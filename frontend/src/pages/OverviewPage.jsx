@@ -64,7 +64,7 @@ const OverviewPage = ({ socket }) => {
 
 				{/* CHARTS */}
 				<div className=''>
-					<DataOverviewChart />
+					<DataOverviewChart socket={socket} />
 				</div>
 			</main>
 		</div>

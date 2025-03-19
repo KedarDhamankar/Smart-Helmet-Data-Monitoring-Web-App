@@ -4,6 +4,6 @@ const { addSensorReadingInDB, getLatestSensorReadingFromDB, getHistoricalSensorD
 
 router.post('/mongo/sensor/data', addSensorReadingInDB);
 router.get('/mongo/sensor/data/:sensor_type', getLatestSensorReadingFromDB);
-router.get('/mongo/sensor/data/history/:sensor_type/', getHistoricalSensorData);
+router.get('/mongo/sensor/data/history/:sensor_type/:limit', getHistoricalSensorData);
 
 module.exports = router;

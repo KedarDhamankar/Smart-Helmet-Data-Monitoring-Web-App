@@ -34,12 +34,12 @@ const getLatestSensorReadingFromDB = async (req, res) => {
 
 const getHistoricalSensorData = async (req, res) => {
     try {
-        const { sensor_type } = req.params;
-        const limit = parseInt(req.query.limit) || 12; // Default to 12 data points if not specified
+        const { sensor_type, limit } = req.params;
+        const limit_count = parseInt(limit) || 12; // Default to 12 data points if not specified
 
-        const results = await SensorReading.find({ sensor_type })
+        const results = await SensorReading.find({ "sensor_type": sensor_type })
             .sort({ createdAt: -1 }) // Get newest first
-            .limit(limit);
+            .limit(limit_count);
 
         // Return in chronological order (oldest first)
         res.status(200).json(results.reverse());

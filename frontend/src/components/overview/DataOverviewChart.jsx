@@ -1,22 +1,93 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useEffect, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { motion } from "framer-motion";
 
-const sensor_data = [
-	{ name: "", value: 42 },
-	{ name: "", value: 38 },
-	{ name: "", value: 51 },
-	{ name: "", value: 46 },
-	{ name: "", value: 54 },
-	{ name: "", value: 72 },
-	{ name: "", value: 61 },
-	{ name: "", value: 59 },
-	{ name: "", value: 68 },
-	{ name: "", value: 63 },
-	{ name: "", value: 71 },
-	{ name: "", value: 75 },
-];
+const DataOverviewChart = ({ socket }) => {
 
-const DataOverviewChart = () => {
+	const [chart_data, setChartData] = useState([]);
+	const sensor_types = ["temperature", "humidity", "air_quality"];
+	const sensor_colors = {
+		temperature: "#EC4899",
+		humidity: "#6366F1",
+		air_quality: "#10B981"
+	};
+
+	useEffect(() => {
+		const fetchInitialData = async () => {
+			try {
+				const sensor_readings = {};
+
+				for (const type of sensor_types) {
+					const mongo_response = await fetch(`http://localhost:3000/mongo/sensor/data/history/${type}/12`)
+					const data = await mongo_response.json();
+					sensor_readings[type] = data;
+				}
+
+				const formatted_data = [];
+
+				for (let i = 0; i < 12; i++) {
+					const data_point = { index: i };
+
+					for (const type of sensor_types) {
+						if (sensor_readings[type] && sensor_readings[type][i]) {
+							data_point[type] = sensor_readings[type][i].sensor_reading;
+						}
+					}
+
+					formatted_data.push(data_point);
+				}
+				setChartData(formatted_data);
+
+			} catch (error) {
+				console.error("Error fetching initial chart data:", error);
+			}
+		};
+		fetchInitialData();
+	}, []);
+
+	// Listen for real-time updates
+	useEffect(() => {
+		if (!socket) return;
+
+		const handleSensorUpdate = (type, data) => {
+			setChartData(prevData => {
+				// Create new data array with the same length
+				const newData = [...prevData];
+
+				// Shift all data points to the left (removing the first/oldest point)
+				for (let i = 0; i < newData.length - 1; i++) {
+					newData[i] = {
+						...newData[i + 1],
+						index: i  // Keep the same index value for continuity
+					};
+				}
+
+				// Update the last position with new data
+				const lastIndex = newData.length - 1;
+				newData[lastIndex] = {
+					...newData[lastIndex],
+					index: lastIndex,
+					[type]: data.sensor_reading
+				};
+
+				return newData;
+			});
+		};
+
+		// Set up listeners for each sensor type
+		sensor_types.forEach(type => {
+			socket.on(type, (data) => handleSensorUpdate(type, data));
+		});
+
+		// Clean up listeners
+		return () => {
+			sensor_types.forEach(type => {
+				socket.off(type);
+			});
+		};
+	}, [socket]);
+
+
 	return (
 		<motion.div
 			className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700'
@@ -28,9 +99,9 @@ const DataOverviewChart = () => {
 
 			<div className='h-80'>
 				<ResponsiveContainer width={"100%"} height={"100%"}>
-					<LineChart data={sensor_data} >
+					<LineChart data={chart_data} >
 						<CartesianGrid strokeDasharray='3 3' stroke='#4B5563' />
-						<XAxis dataKey={"name"} stroke='#9ca3af' />
+						<XAxis dataKey={"name"} stroke='#9ca3af' tick={false} />
 						<YAxis stroke='#9ca3af' />
 						<Tooltip
 							contentStyle={{
@@ -39,14 +110,20 @@ const DataOverviewChart = () => {
 							}}
 							itemStyle={{ color: "#E5E7EB" }}
 						/>
-						<Line
-							type='monotone'
-							dataKey='value'
-							stroke='#6366F1'
-							strokeWidth={3}
-							dot={{ fill: "#6366F1", strokeWidth: 2, r: 6 }}
-							activeDot={{ r: 8, strokeWidth: 2 }}
-						/>
+						<Legend />
+						{sensor_types.map(type => (
+							<Line
+								key={type}
+								type='monotone'
+								dataKey={type}
+								name={type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+								stroke={sensor_colors[type]}
+								strokeWidth={2}
+								dot={{ fill: sensor_colors[type], strokeWidth: 1, r: 4 }}
+								activeDot={{ r: 6, strokeWidth: 2 }}
+								connectNulls={true}
+							/>
+						))}
 					</LineChart>
 				</ResponsiveContainer>
 			</div>
