@@ -1,9 +1,9 @@
 const SensorReading = require('../models/sensor_data.model.js');
-const SensorData = require('../models/sensor_data.model.js');
+const ImageDataSchema = require('../models/image_data.model.js')
 
 const addSensorReadingInDB = async (req, res) => {
     try {
-        const sensor_reading_object = await SensorData.create({
+        const sensor_reading_object = await SensorReading.create({
             sensor_type: req.body.sensor_type,
             sensor_reading: req.body.sensor_reading
         })
@@ -48,4 +48,32 @@ const getHistoricalSensorData = async (req, res) => {
     }
 }
 
-module.exports = { addSensorReadingInDB, getLatestSensorReadingFromDB, getHistoricalSensorData };
+const postImageData = async (req, res) => {
+    try {
+        const base64_image_data = req.body.base64_image;
+
+        const base64_image_data_object = await ImageDataSchema.create({
+            base64_image: base64_image_data
+        });
+
+        // Lazy importing socket io object
+        const io = require('../index.js');
+
+        io.emit("New image received");
+
+        res.status(200).json({ "base64 image data in db": base64_image_data_object });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+const getImageData = async (req, res) => {
+    try {
+        const base64_image_data_object = await ImageDataSchema.findOne({}).sort({ createdAt: -1 })
+        res.status(200).json(base64_image_data_object);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = { addSensorReadingInDB, getLatestSensorReadingFromDB, getHistoricalSensorData, postImageData, getImageData };

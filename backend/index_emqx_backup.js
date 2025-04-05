@@ -13,7 +13,7 @@ client.on('connect', () => {
 });
 
 client.on('message', (topic, message) => {
-    // console.log(`Received message: ${message.toString()} on topic: ${topic}`);
+    console.log(`Received message: ${message.toString()} on topic: ${topic}`);
     // console.log(message);
     const stringMessage = message.toString();
     const jsonmessage = JSON.parse(stringMessage);
