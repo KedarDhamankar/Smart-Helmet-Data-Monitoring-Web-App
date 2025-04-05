@@ -66,7 +66,7 @@ const OverviewPage = ({ socket }) => {
 	}, [])
 
 	// Google Maps Integration
-	const GOOGLE_API_KEY = "AIzaSyDCNM0md1nEblT7-MP9ckacBaVflH0PPFc";
+	const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 	const TILESET_URL = "https://tile.googleapis.com/v1/3dtiles/root.json";
 
 	const containerRef = useRef(null);

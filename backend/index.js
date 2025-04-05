@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { Server } = require('socket.io');
+require("dotenv").config();
 
 require('./config/mqtt.js');
 require('./mqtt-handlers/mqtt_handler.js');
@@ -17,11 +18,11 @@ app.use(cors());
 app.use(express.json()); // to allow express to parse json data as input
 
 // Connecting to MongoDB
-mongoose.connect("mongodb+srv://admin:vkMteJCUjwkzy9Yj@cluster0.lmtey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log("Connected to database!");
-        app.listen(3000, () => {
-            console.log('Server is running on port 3000')
+        app.listen(process.env.PORT, () => {
+            console.log(`Server is running on port ${process.env.PORT}`)
         });
     })
     .catch(() => {
