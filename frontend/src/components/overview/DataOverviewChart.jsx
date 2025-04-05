@@ -18,7 +18,7 @@ const DataOverviewChart = ({ socket }) => {
 				const sensor_readings = {};
 
 				for (const type of sensor_types) {
-					const mongo_response = await fetch(`http://localhost:3000/mongo/sensor/data/history/${type}/12`)
+					const mongo_response = await fetch(`${import.meta.env.VITE_BACKEND_SERVER_URL}/mongo/sensor/data/history/${type}/12`)
 					const data = await mongo_response.json();
 					sensor_readings[type] = data;
 				}

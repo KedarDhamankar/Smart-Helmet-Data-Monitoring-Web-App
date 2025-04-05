@@ -4,7 +4,7 @@ import OverviewPage from "./pages/OverviewPage";
 
 function App() {
 	// Connect to backend WebSocket
-	const socket = io("http://localhost:3001");
+	const socket = io(import.meta.env.VITE_BACKEND_SERVER_URL);
 
 	socket.on("connect", () => {
 		console.log("Connected to server:", socket.id);
