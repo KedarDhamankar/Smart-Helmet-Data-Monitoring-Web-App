@@ -15,6 +15,7 @@ app.use(cors());
 
 // Middleware
 app.use(express.json()); // to allow express to parse json data as input
+app.use(express.text()); // to allow express to parse json data as input
 
 // Connecting to MongoDB
 mongoose.connect(process.env.MONGODB_URI)

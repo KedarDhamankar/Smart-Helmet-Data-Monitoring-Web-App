@@ -50,7 +50,8 @@ const getHistoricalSensorData = async (req, res) => {
 
 const postImageData = async (req, res) => {
     try {
-        const base64_image_data = req.body.base64_image;
+        const base64_image_data = req.body;
+        console.log(req.body);
 
         const base64_image_data_object = await ImageDataSchema.create({
             base64_image: base64_image_data

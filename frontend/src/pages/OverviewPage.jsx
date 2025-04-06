@@ -27,7 +27,6 @@ const OverviewPage = ({ socket }) => {
 	const handleImageData = async () => {
 		const get_image_response = await fetch(`${import.meta.env.VITE_BACKEND_SERVER_URL}/mongo/image/data`, { method: "GET" })
 		const base64_image_data_object = await get_image_response.json();
-		console.log(base64_image_data_object);
 		if (base64_image_data_object) {
 			setBase64Image(base64_image_data_object.base64_image);
 		}
@@ -39,12 +38,12 @@ const OverviewPage = ({ socket }) => {
 			socket.on(sensor_type, (sensor_data_object) => {
 				console.log("Received new data:", sensor_data_object);
 				handleSensorData(sensor_type, sensor_data_object.sensor_reading);
-				// console.log(sensor_data_object)
 			});
 		})
 
 		socket.on("New image received", async () => {
 			handleImageData();
+			console.log("Received new image");
 		})
 
 		return () => {
