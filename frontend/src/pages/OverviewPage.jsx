@@ -1,11 +1,6 @@
-import { ThermometerSun, Vibrate, Cloudy, Droplets } from "lucide-react";
+import { ThermometerSun, Cloudy, Droplets, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
-
-import { Deck } from "@deck.gl/core";
-import { Tile3DLayer } from "@deck.gl/geo-layers";
-import { ScatterplotLayer } from '@deck.gl/layers';
-
 
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
@@ -67,7 +62,7 @@ const OverviewPage = ({ socket }) => {
 
 	return (
 		<div className='flex-1 overflow-auto relative z-10'>
-			<Header title='Sensor Readings Overview' />
+			<Header title='Smart Helmet Dashboard' />
 
 			<main className='max-w-7xl mx-auto py-5 px-4 lg:px-8'>
 				{/* STATS */}
@@ -78,17 +73,15 @@ const OverviewPage = ({ socket }) => {
 					transition={{ duration: 1 }}
 				>
 					<StatCard name='Temperature' icon={ThermometerSun} value={sensor_data.temperature + "°C"} color='#EC4899' />
-					<StatCard name='Location' icon={Vibrate} value={`${sensor_data.latitude}° ${sensor_data.longitude}°`} color='#8B5CF6' />
+					<StatCard name='Location' icon={MapPin} value={`${sensor_data.latitude}° ${sensor_data.longitude}°`} color='#8B5CF6' />
 					<StatCard name='Humidity' icon={Droplets} value={sensor_data.humidity + "%"} color='#6366F1' />
 					<StatCard name='Air Quality' icon={Cloudy} value={sensor_data.air_quality + " AQI"} color='#10B981' />
 				</motion.div>
 
 				<div className="flex justify-between mb-5 flex-wrap gap-y-5">
 
-					{/* Live Image feed from camera sensor  */}
 					{/* Image data from ESP CAM */}
 					<div className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 md:w-[49%] w-full'>
-						{/* <h2 className='text-lg font-medium mb-4 text-gray-100'>Auto-Refreshing Camera View</h2> */}
 						<h2 className='text-lg font-medium mb-4 text-gray-100'>Latest Camera Snapshot</h2>
 						<img
 							src={`data:image/png;base64,${base64_image}`}
