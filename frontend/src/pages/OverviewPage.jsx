@@ -10,6 +10,7 @@ import { ScatterplotLayer } from '@deck.gl/layers';
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 import DataOverviewChart from "../components/overview/DataOverviewChart";
+import LiveMap from "../components/overview/LiveMap";
 
 const OverviewPage = ({ socket }) => {
 	const [sensor_data, setSensorData] = useState({});
@@ -64,64 +65,6 @@ const OverviewPage = ({ socket }) => {
 		handleImageData();
 	}, [])
 
-	// Google Maps Integration
-	// const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-	// const TILESET_URL = "https://tile.googleapis.com/v1/3dtiles/root.json";
-
-	// const containerRef = useRef(null);
-
-	// useEffect(() => {
-	// 	const creditsElement = document.createElement("div");
-	// 	creditsElement.style.position = "absolute";
-	// 	creditsElement.style.bottom = "0";
-	// 	creditsElement.style.right = "0";
-	// 	creditsElement.style.padding = "2px";
-	// 	creditsElement.style.fontSize = "15px";
-	// 	creditsElement.style.color = "white";
-	// 	creditsElement.style.textShadow = "-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black";
-	// 	containerRef.current.appendChild(creditsElement);
-
-	// 	const deckgl = new Deck({
-	// 		container: containerRef.current,
-	// 		initialViewState: {
-	// 			latitude: sensor_data.latitude,
-	// 			longitude: sensor_data.longitude,
-	// 			zoom: 16,
-	// 			bearing: 90,
-	// 			pitch: 60,
-	// 		},
-	// 		controller: { minZoom: 8 },
-	// 		layers: [
-	// 			new Tile3DLayer({
-	// 				id: "google-3d-tiles",
-	// 				data: TILESET_URL,
-	// 				loadOptions: {
-	// 					fetch: {
-	// 						headers: {
-	// 							"X-GOOG-API-KEY": GOOGLE_API_KEY,
-	// 						},
-	// 					},
-	// 				},
-	// 				onTilesetLoad: (tileset3d) => {
-	// 					tileset3d.options.onTraversalComplete = (selectedTiles) => {
-	// 						const credits = new Set();
-	// 						selectedTiles.forEach((tile) => {
-	// 							const copyright = tile.content.gltf?.asset?.copyright;
-	// 							if (copyright) {
-	// 								copyright.split(";").forEach((c) => credits.add(c.trim()));
-	// 							}
-	// 						});
-	// 						creditsElement.innerHTML = [...credits].join("; ");
-	// 						return selectedTiles;
-	// 					};
-	// 				},
-	// 			}),
-	// 		],
-	// 	});
-
-	// 	return () => deckgl.finalize();
-	// }, []);
-
 	return (
 		<div className='flex-1 overflow-auto relative z-10'>
 			<Header title='Sensor Readings Overview' />
@@ -140,20 +83,36 @@ const OverviewPage = ({ socket }) => {
 					<StatCard name='Air Quality' icon={Cloudy} value={sensor_data.air_quality + " AQI"} color='#10B981' />
 				</motion.div>
 
+				<div className="flex justify-between mb-5 flex-wrap gap-y-5">
+
+					{/* Live Image feed from camera sensor  */}
+					{/* Image data from ESP CAM */}
+					<div className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 md:w-[49%] w-full'>
+						{/* <h2 className='text-lg font-medium mb-4 text-gray-100'>Auto-Refreshing Camera View</h2> */}
+						<h2 className='text-lg font-medium mb-4 text-gray-100'>Latest Camera Snapshot</h2>
+						<img
+							src={`data:image/png;base64,${base64_image}`}
+							alt="Base64"
+							style={{ width: "100%", height: "auto" }}
+						/>
+					</div>
+
+					{/* Google Maps integration */}
+					<div className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 md:w-[49%] w-full'>
+						<h2 className='text-lg font-medium mb-4 text-gray-100'>Live Location</h2>
+						<div
+							className="w-full h-[400px] rounded-xl"
+						>
+							{/* <LiveMap /> */}
+							<LiveMap latitude={sensor_data.latitude} longitude={sensor_data.longitude} />
+
+						</div>
+					</div>
+				</div>
+
 				{/* CHARTS */}
 				<div className=''>
 					<DataOverviewChart socket={socket} />
-				</div>
-
-				{/* Google Maps integration */}
-				{/* <div
-					ref={containerRef}
-					style={{ width: "100%", height: "100%" }}
-				/> */}
-
-				{/* Live Image feed from camera sensor  */}
-				<div>
-					<img src={`data:image/png;base64,${base64_image}`} alt="Base64" style={{ width: "200px", height: "auto" }} />
 				</div>
 
 			</main>
