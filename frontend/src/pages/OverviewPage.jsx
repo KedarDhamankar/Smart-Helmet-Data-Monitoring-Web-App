@@ -96,8 +96,7 @@ const OverviewPage = ({ socket }) => {
 						<div
 							className="w-full h-[400px] rounded-xl"
 						>
-							{/* <LiveMap /> */}
-							<LiveMap latitude={sensor_data.latitude} longitude={sensor_data.longitude} />
+							{/* <LiveMap latitude={sensor_data.latitude} longitude={sensor_data.longitude} /> */}
 
 						</div>
 					</div>
