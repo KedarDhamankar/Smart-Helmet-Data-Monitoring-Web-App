@@ -14,6 +14,9 @@ const OverviewPage = ({ socket }) => {
 	const sensor_types = ["temperature", "humidity", "air_quality", "latitude", "longitude"];
 
 	const handleSensorData = (sensor_type, sensor_data) => {
+		if ((sensor_type === "latitude" || sensor_type === "longitude") && parseInt(sensor_data, 10) === 0) {
+			return;
+		}
 		setSensorData((prev_data) => ({
 			...prev_data,
 			[sensor_type]: sensor_data,
@@ -29,24 +32,26 @@ const OverviewPage = ({ socket }) => {
 	}
 
 	useEffect(() => {
-		sensor_types.forEach((sensor_type) => {
-			// Listen for real-time updates
-			socket.on(sensor_type, (sensor_data_object) => {
-				console.log("Received new data:", sensor_data_object);
-				handleSensorData(sensor_type, sensor_data_object.sensor_reading);
-			});
-		})
-
-		socket.on("New image received", async () => {
-			handleImageData();
-			console.log("Received new image");
-		})
-
-		return () => {
+		if (socket) {
 			sensor_types.forEach((sensor_type) => {
-				socket.off(sensor_type); // Clean up on unmount
+				// Listen for real-time updates
+				socket.on(sensor_type, (sensor_data_object) => {
+					console.log("Received new data:", sensor_data_object);
+					handleSensorData(sensor_type, sensor_data_object.sensor_reading);
+				});
 			})
-		};
+
+			socket.on("New image received", async () => {
+				handleImageData();
+				console.log("Received new image");
+			})
+
+			return () => {
+				sensor_types.forEach((sensor_type) => {
+					socket.off(sensor_type); // Clean up on unmount
+				})
+			};
+		}
 	}, [socket]);
 
 	useEffect(() => {
@@ -54,13 +59,11 @@ const OverviewPage = ({ socket }) => {
 			const mongo_response = await fetch(`${import.meta.env.VITE_BACKEND_SERVER_URL}/mongo/sensor/data/${sensor_type}`, { method: "GET" })
 			const sensor_data_object = await mongo_response.json();
 			// console.log(sensor_data_object);
-			handleSensorData(sensor_type, sensor_data_object.sensor_reading);
+			if (sensor_data_object) {
+				handleSensorData(sensor_type, sensor_data_object.sensor_reading);
+			}
 		})
 
-		// console.log(typeof sensor_data.latitude);
-		// console.log(sensor_data.latitude);
-		// console.log(Number(sensor_data.latitude));
-		// console.log(typeof parseFloat(sensor_data.latitude));
 		handleImageData();
 	}, [])
 
@@ -76,35 +79,58 @@ const OverviewPage = ({ socket }) => {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1 }}
 				>
-					<StatCard name='Temperature' icon={ThermometerSun} value={sensor_data.temperature + "°C"} color='#EC4899' />
-					<StatCard name='Location' icon={MapPin} value={`${Number(sensor_data.latitude).toFixed(4)}° ${Number(sensor_data.longitude).toFixed(4)}°`} color='#8B5CF6' />
-					<StatCard name='Humidity' icon={Droplets} value={sensor_data.humidity + "%"} color='#6366F1' />
-					<StatCard name='Air Quality' icon={Cloudy} value={sensor_data.air_quality + " AQI"} color='#10B981' />
+					<StatCard name='Temperature' icon={ThermometerSun} value={sensor_data.temperature ? sensor_data.temperature + "°C" : "N/A"} color='#EC4899' />
+					<StatCard name='Location' icon={MapPin}
+						value={
+							(sensor_data.latitude && sensor_data.longitude)
+								? `${Number(sensor_data.latitude).toFixed(4)}° ${Number(sensor_data.longitude).toFixed(4)}°`
+								: "N/A"
+						}
+						color='#8B5CF6'
+					/>
+					<StatCard name='Humidity' icon={Droplets} value={sensor_data.humidity ? sensor_data.humidity + "%" : "N/A"} color='#6366F1' />
+					<StatCard name='Air Quality' icon={Cloudy} value={sensor_data.air_quality ? sensor_data.air_quality + " AQI" : "N/A"} color='#10B981' />
 				</motion.div>
 
-				<div className="flex justify-between mb-5 flex-wrap gap-y-5">
+				<motion.div
+					className="flex justify-between mb-5 flex-wrap gap-y-5"
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 1 }}
+				>
 
 					{/* Image data from ESP CAM */}
 					<div className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 md:w-[49%] w-full'>
 						<h2 className='text-lg font-medium mb-4 text-gray-100'>Latest Camera Snapshot</h2>
-						<img
-							src={`data:image/png;base64,${base64_image}`}
-							alt="Base64"
-							style={{ width: "100%", height: "auto" }}
-						/>
+						{base64_image ? (
+							<img
+								src={`data:image/png;base64,${base64_image}`}
+								alt="Base64"
+								style={{ width: "100%", height: "auto" }}
+							/>
+						) : (
+							<div className="w-full h-full flex items-center justify-center text-gray-400 text-lg">
+								Image not available
+							</div>
+						)
+						}
 					</div>
 
 					{/* Google Maps integration */}
 					<div className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 md:w-[49%] w-full'>
 						<h2 className='text-lg font-medium mb-4 text-gray-100'>Live Location</h2>
-						<div
-							className="w-full h-[400px] rounded-xl"
-						>
-							<LiveMap latitude={Number(sensor_data.latitude)} longitude={Number(sensor_data.longitude)} />
-
+						<div className="w-full h-[400px] rounded-xl">
+							{(sensor_data.latitude && sensor_data.longitude) ? (
+								<LiveMap latitude={Number(sensor_data.latitude)} longitude={Number(sensor_data.longitude)} />
+							) : (
+								<div className="w-full h-full flex items-center justify-center text-gray-400 text-lg">
+									Location not available
+								</div>
+							)}
 						</div>
+
 					</div>
-				</div>
+				</motion.div>
 
 				{/* CHARTS */}
 				<div className=''>

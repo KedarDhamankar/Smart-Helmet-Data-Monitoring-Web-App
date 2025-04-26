@@ -7,11 +7,14 @@ mqtt_client.on('message', async (topic, message) => {
         console.log(messageJSON);
 
         for (key in messageJSON) {
+            if ((key === "latitude" || key === "longitude") && parseInt(messageJSON[key], 10) === 0) {
+                console.log("Invalid location data.");
+                continue;
+            }
             const request_body = {
                 sensor_type: key,
                 sensor_reading: messageJSON[key]
             };
-            console.log("Hello");
             const mongo_response = await fetch(`${process.env.BACKEND_SERVER_URL}/mongo/sensor/data`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
