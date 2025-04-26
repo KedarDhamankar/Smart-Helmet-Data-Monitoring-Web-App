@@ -57,6 +57,10 @@ const OverviewPage = ({ socket }) => {
 			handleSensorData(sensor_type, sensor_data_object.sensor_reading);
 		})
 
+		// console.log(typeof sensor_data.latitude);
+		// console.log(sensor_data.latitude);
+		// console.log(Number(sensor_data.latitude));
+		// console.log(typeof parseFloat(sensor_data.latitude));
 		handleImageData();
 	}, [])
 
@@ -73,7 +77,7 @@ const OverviewPage = ({ socket }) => {
 					transition={{ duration: 1 }}
 				>
 					<StatCard name='Temperature' icon={ThermometerSun} value={sensor_data.temperature + "°C"} color='#EC4899' />
-					<StatCard name='Location' icon={MapPin} value={`${sensor_data.latitude}° ${sensor_data.longitude}°`} color='#8B5CF6' />
+					<StatCard name='Location' icon={MapPin} value={`${Number(sensor_data.latitude).toFixed(4)}° ${Number(sensor_data.longitude).toFixed(4)}°`} color='#8B5CF6' />
 					<StatCard name='Humidity' icon={Droplets} value={sensor_data.humidity + "%"} color='#6366F1' />
 					<StatCard name='Air Quality' icon={Cloudy} value={sensor_data.air_quality + " AQI"} color='#10B981' />
 				</motion.div>
@@ -96,7 +100,7 @@ const OverviewPage = ({ socket }) => {
 						<div
 							className="w-full h-[400px] rounded-xl"
 						>
-							{/* <LiveMap latitude={sensor_data.latitude} longitude={sensor_data.longitude} /> */}
+							<LiveMap latitude={Number(sensor_data.latitude)} longitude={Number(sensor_data.longitude)} />
 
 						</div>
 					</div>

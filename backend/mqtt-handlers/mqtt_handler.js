@@ -11,7 +11,7 @@ mqtt_client.on('message', async (topic, message) => {
                 sensor_type: key,
                 sensor_reading: messageJSON[key]
             };
-
+            console.log("Hello");
             const mongo_response = await fetch(`${process.env.BACKEND_SERVER_URL}/mongo/sensor/data`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
