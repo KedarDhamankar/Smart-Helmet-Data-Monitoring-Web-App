@@ -79,17 +79,49 @@ const OverviewPage = ({ socket }) => {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1 }}
 				>
-					<StatCard name='Temperature' icon={ThermometerSun} value={sensor_data.temperature ? sensor_data.temperature + "°C" : "N/A"} color='#EC4899' />
-					<StatCard name='Location' icon={MapPin}
+					<StatCard
+						name='Temperature'
+						icon={ThermometerSun}
 						value={
-							(sensor_data.latitude && sensor_data.longitude)
+							sensor_data.temperature !== undefined && sensor_data.temperature !== null
+								? sensor_data.temperature + "°C"
+								: "N/A"
+						}
+						color='#EC4899'
+					/>
+
+					<StatCard
+						name='Location'
+						icon={MapPin}
+						value={
+							(sensor_data.latitude !== undefined && sensor_data.longitude !== undefined)
 								? `${Number(sensor_data.latitude).toFixed(4)}° ${Number(sensor_data.longitude).toFixed(4)}°`
 								: "N/A"
 						}
 						color='#8B5CF6'
 					/>
-					<StatCard name='Humidity' icon={Droplets} value={sensor_data.humidity ? sensor_data.humidity + "%" : "N/A"} color='#6366F1' />
-					<StatCard name='Air Quality' icon={Cloudy} value={sensor_data.air_quality ? sensor_data.air_quality + " AQI" : "N/A"} color='#10B981' />
+
+					<StatCard
+						name='Humidity'
+						icon={Droplets}
+						value={
+							sensor_data.humidity !== undefined && sensor_data.humidity !== null
+								? sensor_data.humidity + "%"
+								: "N/A"
+						}
+						color='#6366F1'
+					/>
+
+					<StatCard
+						name='Air Quality'
+						icon={Cloudy}
+						value={
+							sensor_data.air_quality !== undefined && sensor_data.air_quality !== null
+								? sensor_data.air_quality + " AQI"
+								: "N/A"
+						}
+						color='#10B981'
+					/>
 				</motion.div>
 
 				<motion.div
@@ -102,18 +134,20 @@ const OverviewPage = ({ socket }) => {
 					{/* Image data from ESP CAM */}
 					<div className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 md:w-[49%] w-full'>
 						<h2 className='text-lg font-medium mb-4 text-gray-100'>Latest Camera Snapshot</h2>
-						{base64_image ? (
-							<img
-								src={`data:image/png;base64,${base64_image}`}
-								alt="Base64"
-								style={{ width: "100%", height: "auto" }}
-							/>
-						) : (
-							<div className="w-full h-full flex items-center justify-center text-gray-400 text-lg">
-								Image not available
-							</div>
-						)
-						}
+						<div className="w-full h-[400px] rounded-xl">
+							{base64_image ? (
+								<img
+									src={`data:image/png;base64,${base64_image}`}
+									alt="Base64"
+									style={{ width: "100%", height: "auto" }}
+								/>
+							) : (
+								<div className="w-full h-full flex items-center justify-center text-gray-400 text-lg">
+									Image not available
+								</div>
+							)
+							}
+						</div>
 					</div>
 
 					{/* Google Maps integration */}
