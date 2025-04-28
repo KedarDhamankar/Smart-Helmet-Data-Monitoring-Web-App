@@ -134,7 +134,7 @@ const OverviewPage = ({ socket }) => {
 					{/* Image data from ESP CAM */}
 					<div className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 md:w-[49%] w-full'>
 						<h2 className='text-lg font-medium mb-4 text-gray-100'>Latest Camera Snapshot</h2>
-						<div className="w-full h-[400px] rounded-xl">
+						<div className="w-full rounded-xl">
 							{base64_image ? (
 								<img
 									src={`data:image/png;base64,${base64_image}`}
