@@ -11,6 +11,7 @@ const OverviewPage = ({ socket }) => {
 	const [sensor_data, setSensorData] = useState({});
 	const [base64_image, setBase64Image] = useState();
 	const [show_temperature_alert, setShowTemperatureAlert] = useState(false);
+	const [air_quality_level, setAirQualityLevel] = useState({ "level": "N/A", "color": "#9CA3AF" }) // Gray color
 
 	const sensor_types = ["temperature", "humidity", "air_quality", "latitude", "longitude"];
 
@@ -19,7 +20,7 @@ const OverviewPage = ({ socket }) => {
 		if ((sensor_type === "latitude" || sensor_type === "longitude") && parseInt(sensor_data, 10) === 0) {
 			return;
 		}
-		// Set show alert to true for temperature 
+		// Set alert for temperature
 		else if (sensor_type === "temperature") {
 			// If temperature greater than 45 or less than 10, then show alert
 			const temperature_data = parseInt(sensor_data, 10);
@@ -29,6 +30,27 @@ const OverviewPage = ({ socket }) => {
 				setShowTemperatureAlert(false);
 			}
 		}
+		// Set text for air quality levels
+		else if (sensor_type === "air_quality") {
+			const aq_value = parseInt(sensor_data, 10);
+			let air_quality_level;
+			let air_quality_color;
+			if (aq_value <= 400) {
+				air_quality_level = "Safe";
+				air_quality_color = "#10B981"; // Green
+			} else if (aq_value <= 800) {
+				air_quality_level = "Moderate";
+				air_quality_color = "#FBBF24"; // Yellow
+			} else if (aq_value <= 1200) {
+				air_quality_level = "High";
+				air_quality_color = "#F97316"; // Orange
+			} else {
+				air_quality_level = "Severe";
+				air_quality_color = "#EF4444"; // Red
+			}
+			setAirQualityLevel({ "level": air_quality_level, "color": air_quality_color })
+		}
+
 		setSensorData((prev_data) => ({
 			...prev_data,
 			[sensor_type]: sensor_data,
@@ -131,10 +153,12 @@ const OverviewPage = ({ socket }) => {
 						icon={Cloudy}
 						value={
 							sensor_data.air_quality !== undefined && sensor_data.air_quality !== null
-								? sensor_data.air_quality + " AQI"
+								? sensor_data.air_quality
 								: "N/A"
 						}
 						color='#10B981'
+						subtext={air_quality_level.level}
+						subcolor={air_quality_level.color}
 					/>
 				</motion.div>
 

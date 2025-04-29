@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { TriangleAlert } from "lucide-react";
 
-const StatCard = ({ name, icon: Icon, value, color, showAlert }) => {
+const StatCard = ({ name, icon: Icon, value, color, showAlert, subtext, subcolor }) => {
 	return (
 		<motion.div
 			className='flex bg-gray-800 bg-opacity-50 backdrop-blur-md overflow-hidden shadow-lg rounded-xl border border-gray-700'
@@ -14,9 +14,14 @@ const StatCard = ({ name, icon: Icon, value, color, showAlert }) => {
 						{name}
 					</span>
 				</span>
-				<div className="flex flex-row items-center gap-x-3">
+				<div className="flex flex-row items-center gap-x-4">
 					<p className='mt-1 text-3xl font-semibold text-gray-100'>{value}</p>
 					{showAlert && <TriangleAlert size={35} className='text-yellow-400' />}
+					{subtext && (
+						<p className='text-2xl mt-1 font-medium' style={{ color: subcolor }}>
+							{subtext}
+						</p>
+					)}
 				</div>
 			</div>
 		</motion.div>
