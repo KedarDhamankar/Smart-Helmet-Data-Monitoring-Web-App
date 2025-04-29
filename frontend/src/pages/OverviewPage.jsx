@@ -10,12 +10,24 @@ import LiveMap from "../components/overview/LiveMap";
 const OverviewPage = ({ socket }) => {
 	const [sensor_data, setSensorData] = useState({});
 	const [base64_image, setBase64Image] = useState();
+	const [show_temperature_alert, setShowTemperatureAlert] = useState(false);
 
 	const sensor_types = ["temperature", "humidity", "air_quality", "latitude", "longitude"];
 
 	const handleSensorData = (sensor_type, sensor_data) => {
+		// Return if invalid gps data
 		if ((sensor_type === "latitude" || sensor_type === "longitude") && parseInt(sensor_data, 10) === 0) {
 			return;
+		}
+		// Set show alert to true for temperature 
+		else if (sensor_type === "temperature") {
+			// If temperature greater than 45 or less than 10, then show alert
+			const temperature_data = parseInt(sensor_data, 10);
+			if (temperature_data > 45 || temperature_data < 10) {
+				setShowTemperatureAlert(true);
+			} else {
+				setShowTemperatureAlert(false);
+			}
 		}
 		setSensorData((prev_data) => ({
 			...prev_data,
@@ -65,7 +77,7 @@ const OverviewPage = ({ socket }) => {
 		})
 
 		handleImageData();
-	}, [])
+	}, []) // Fetch initial data for all sensors and image
 
 	return (
 		<div className='flex-1 overflow-auto relative z-10'>
@@ -88,6 +100,8 @@ const OverviewPage = ({ socket }) => {
 								: "N/A"
 						}
 						color='#EC4899'
+
+						showAlert={show_temperature_alert}
 					/>
 
 					<StatCard
